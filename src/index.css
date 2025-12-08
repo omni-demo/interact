@@ -1,0 +1,142 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 220 15% 20%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 20%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 20%;
+
+    --primary: 225 100% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 15% 95%;
+    --secondary-foreground: 220 15% 20%;
+
+    --muted: 220 15% 95%;
+    --muted-foreground: 220 10% 50%;
+
+    --accent: 225 80% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 90%;
+    --input: 220 15% 90%;
+    --ring: 225 100% 60%;
+
+    --radius: 0.75rem;
+
+    /* Gradient tokens for cards */
+    --gradient-blue-radial: radial-gradient(circle at 20% 50%, hsl(225, 100%, 60%), hsl(235, 100%, 65%));
+    --gradient-blue-waves: linear-gradient(135deg, hsl(220, 90%, 70%) 0%, hsl(230, 90%, 60%) 50%, hsl(240, 90%, 70%) 100%);
+    --gradient-blue-angular: linear-gradient(135deg, hsl(215, 100%, 65%), hsl(230, 100%, 60%));
+    
+    /* Shadows */
+    --shadow-card: 0 1px 3px 0 hsl(220 15% 20% / 0.05);
+    --shadow-card-hover: 0 4px 12px 0 hsl(220 15% 20% / 0.08);
+    
+    /* Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 220 20% 12%;
+    --foreground: 0 0% 95%;
+
+    --card: 220 20% 15%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 220 20% 15%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 225 100% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 20% 20%;
+    --secondary-foreground: 0 0% 95%;
+
+    --muted: 220 20% 20%;
+    --muted-foreground: 220 10% 60%;
+
+    --accent: 225 80% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 20% 25%;
+    --input: 220 20% 25%;
+    --ring: 225 100% 60%;
+    
+    --gradient-blue-radial: radial-gradient(circle at 20% 50%, hsl(225, 90%, 45%), hsl(235, 90%, 50%));
+    --gradient-blue-waves: linear-gradient(135deg, hsl(220, 80%, 50%) 0%, hsl(230, 80%, 45%) 50%, hsl(240, 80%, 55%) 100%);
+    --gradient-blue-angular: linear-gradient(135deg, hsl(215, 90%, 50%), hsl(230, 90%, 45%));
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* OMNI+ Intro Animation */
+.omni-text {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 140px;
+  fill: transparent;
+  stroke: hsl(227.01deg 100% 61.96%);
+  stroke-width: 2.5px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  paint-order: stroke;
+  transition: fill 0.8s ease-in;
+}
+
+.omni-filled {
+  fill: hsl(227.01deg 100% 61.96%);
+}

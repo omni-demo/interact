@@ -1,0 +1,78 @@
+import { useEffect, useRef, useState, ReactNode } from "react";
+
+type OmniIntroProps = {
+  children: ReactNode;
+  durationMs?: number;
+};
+
+export const OmniIntro = ({
+  children,
+  durationMs = 3800
+}: OmniIntroProps) => {
+  const textRef = useRef<SVGTextElement | null>(null);
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    const text = textRef.current;
+    if (!text) return;
+
+    const length = text.getComputedTextLength();
+    const totalLength = length * 1.05;
+
+    text.style.strokeDasharray = `${totalLength}`;
+    text.style.strokeDashoffset = `${totalLength}`;
+
+    const animation = text.animate(
+      [
+        { strokeDashoffset: totalLength },
+        { strokeDashoffset: 0 }
+      ],
+      {
+        duration: 3000,
+        easing: "ease-out",
+        fill: "forwards"
+      }
+    );
+
+    animation.onfinish = () => {
+      text.classList.add("omni-filled");
+    };
+
+    const timer = window.setTimeout(() => {
+      setDone(true);
+    }, durationMs);
+
+    return () => {
+      animation.cancel();
+      window.clearTimeout(timer);
+    };
+  }, [durationMs]);
+
+  if (done) {
+    return <>{children}</>;
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-100">
+      <svg
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 800 400"
+        className="w-full max-w-4xl h-auto"
+        preserveAspectRatio="xMidYMid meet"
+      >
+        <text
+          id="svgOMNI"
+          ref={textRef}
+          x="50%"
+          y="50%"
+          textAnchor="middle"
+          dominantBaseline="middle"
+          className="omni-text"
+        >
+          OMNICOM+
+        </text>
+      </svg>
+    </div>
+  );
+};

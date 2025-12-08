@@ -1,0 +1,788 @@
+import { useRef, useEffect, useState } from "react";
+import { InteractMasterLayout } from "@/components/InteractMasterLayout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { Download, Search, Filter, ChevronLeft, ExternalLink, Bell, HelpCircle, ChevronDown, FileText, ChevronRight, Plus, Info, Sparkles, Loader2 } from "lucide-react";
+import { useParams, Link } from "react-router-dom";
+import { initialClients, Client, MarketBrief } from "@/data/mockData";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+
+export default function ClientDetail() {
+    const { clientId } = useParams();
+    const client = initialClients.find(c => c.id === clientId);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [expandedLOBs, setExpandedLOBs] = useState<string[]>(["1"]); // Default expand first
+    const [expandedTeams, setExpandedTeams] = useState<string[]>(["1"]); // Default expand first
+    const [isCreateBriefOpen, setIsCreateBriefOpen] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [briefDescription, setBriefDescription] = useState("");
+    const [marketBriefs, setMarketBriefs] = useState<MarketBrief[]>(client?.marketBriefs || []);
+    const [briefBudget, setBriefBudget] = useState("");
+    const [briefGoal, setBriefGoal] = useState("");
+    const [briefTeam, setBriefTeam] = useState("");
+    const [briefWorkstreams, setBriefWorkstreams] = useState<string[]>([]);
+    const lastProcessedRef = useRef<string | null>(null);
+    const lastDocProcessedRef = useRef<string | null>(null);
+    const lastNameProcessedRef = useRef<string | null>(null);
+
+    // Polling for sync trigger from Workfront Clone (New Project)
+    useEffect(() => {
+        const checkCookie = () => {
+            const match = document.cookie.match(new RegExp('(^| )omnify_new_project_trigger=([^;]+)'));
+            if (match) {
+                const timestamp = match[2];
+                if (timestamp !== lastProcessedRef.current) {
+                    console.log("Sync trigger detected!", timestamp);
+                    lastProcessedRef.current = timestamp;
+
+                    // Create new brief
+                    const newBrief: MarketBrief = {
+                        id: `mb-sync-${Date.now()}`,
+                        name: "AI Generated Brief (Synced)",
+                        market: "United States",
+                        forecastedBudget: "$25,000",
+                        owner: "System Sync",
+                        dateRange: "2025-04-01 - 2025-06-30",
+                        description: "Automatically generating market brief based on new project initialization.",
+                        clientName: client?.name,
+                        brandProduct: "New Product",
+                        objective: "New Campaign",
+                        projectUrl: "#",
+                        deliverables: [],
+                        documents: [],
+                        team: "Marketing Team",
+                        workstreams: ["Creative"]
+                    };
+
+                    setMarketBriefs(prev => [newBrief, ...prev]);
+
+                    // Show confirmation/toast if available, or just log
+                    console.log("New brief created from sync");
+                }
+            }
+        };
+
+        const intervalId = setInterval(checkCookie, 1000);
+        return () => clearInterval(intervalId);
+    }, [client]);
+
+    // Polling for name sync
+    useEffect(() => {
+        const checkNameCookie = () => {
+            const match = document.cookie.match(new RegExp('(^| )omnify_project_name_trigger=([^;]+)'));
+            if (match) {
+                const newName = decodeURIComponent(match[2]);
+                if (newName !== lastNameProcessedRef.current) {
+                    lastNameProcessedRef.current = newName;
+
+                    setMarketBriefs(prev => prev.map(brief => {
+                        // Update only the synced brief (identified by ID prefix)
+                        if (brief.id.startsWith('mb-sync-')) {
+                            return { ...brief, name: newName };
+                        }
+                        return brief;
+                    }));
+                }
+            }
+        };
+        const intervalId = setInterval(checkNameCookie, 1000);
+        return () => clearInterval(intervalId);
+    }, []);
+
+    const handleGenerateBrief = () => {
+        setIsGenerating(true);
+        setTimeout(() => {
+            const generatedName = briefGoal ? briefGoal.split('\n')[0].substring(0, 50) : "Strategic Campaign Brief";
+            const newBrief: MarketBrief = {
+                id: `mb-${Date.now()}`,
+                name: generatedName,
+                market: "United States",
+                forecastedBudget: briefBudget || "$50,000",
+                owner: "AI Assistant",
+                dateRange: "2025-01-01 - 2025-03-31",
+                description: `Project Brief: ${briefDescription}
+
+Project Overview
+This project focuses on ${briefDescription.toLowerCase()} to ensure they better reflect and align with our company values. Recognizing the importance of consistent messaging and inclusivity, this initiative aims to refresh our materials, making them more engaging, relevant, and representative of our organizational culture.
+
+The effort is timely as it supports our ongoing commitment to diversity, equity, and inclusion, while improving the overall experience for employees.
+
+Objectives
+${briefGoal || "Update existing resources to align with company values."}
+Enhance clarity, inclusivity, and engagement in content.
+Create a cohesive and modernized experience.
+Ensure that all materials reflect the principles championed by our initiatives.
+
+Scope & Deliverables
+Revision and redesign of materials.
+Development of updated documentation.
+Creation and refinement of comprehensive modules.
+The project will exclusively focus on ${briefDescription.toLowerCase()}. Other unrelated materials or external communications are outside this scope.
+
+Timeline & Milestones
+August:
+Project kickoff, initial review of existing materials, and planning.
+
+September:
+Design and content updates underway; iterative reviews with teams.
+
+October:
+Final revisions, approvals, and rollout of updated resources.
+
+Stakeholders & Roles
+Design Team:
+Responsible for the visual refresh and user-friendly layouts of all materials.
+
+Strategy Team:
+Provides expertise on content, ensures accuracy, and oversees alignment with policies.
+
+DEI Team:
+Ensures that updated resources promote inclusivity and reflect company diversity values.
+
+The project is intended for internal company use, primarily benefiting new hires and employees participating in ongoing training.`,
+                clientName: client?.name,
+                brandProduct: "New Product",
+                objective: briefGoal || "Launch Campaign",
+                projectUrl: "https://example.com",
+                deliverables: [],
+                documents: [
+                    {
+                        name: `Market Brief - ${client?.name || "Client"}.docx`,
+                        type: "docx",
+                        date: new Date().toLocaleDateString(),
+                        size: "24 KB"
+                    }
+                ],
+                team: briefTeam,
+                workstreams: briefWorkstreams
+            };
+            setMarketBriefs([...marketBriefs, newBrief]);
+            setIsCreateBriefOpen(false);
+            setIsGenerating(false);
+            setBriefDescription("");
+            setBriefBudget("");
+            setBriefGoal("");
+            setBriefTeam("");
+            setBriefWorkstreams([]);
+
+            // Trigger Workfront project creation via cookie
+            const projectTriggerValue = JSON.stringify({
+                briefName: newBrief.name,
+                timestamp: Date.now()
+            });
+            document.cookie = `omnify_create_projects_trigger=${encodeURIComponent(projectTriggerValue)}; path=/; max-age=60`;
+
+            console.log("Brief generated and sync trigger set:", newBrief.name);
+
+        }, 2000);
+    };
+
+    if (!client) {
+        return <div>Client not found</div>;
+    }
+
+    // Use subClients if available, otherwise empty
+    const clientsToShow = client.subClients || [];
+    // marketBriefs is now state
+    const clientTeams = client.clientTeams || [];
+    const linesOfBusiness = client.linesOfBusiness || [];
+
+    const toggleLOB = (id: string) => {
+        setExpandedLOBs(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+    };
+
+    const toggleTeam = (id: string) => {
+        setExpandedTeams(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+    };
+
+    return (
+        <InteractMasterLayout>
+            <div className="flex flex-col h-full bg-[#f5f7fa] dark:bg-[#0f1419]">
+                {/* Top Header */}
+                <div className="bg-white dark:bg-[#1a1f2e] border-b px-6 py-3 flex items-center justify-between">
+                    <h1 className="text-lg font-semibold text-[#3b82f6]">Client Central</h1>
+                    <div className="flex items-center gap-4">
+                        <Button variant="ghost" size="icon" className="text-muted-foreground">
+                            <Bell className="h-5 w-5" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="text-muted-foreground">
+                            <HelpCircle className="h-5 w-5" />
+                        </Button>
+                        <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-xs">
+                                JM
+                            </div>
+                            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Breadcrumb & Title Area */}
+                <div className="bg-white dark:bg-[#1a1f2e] px-6 py-4 border-b">
+                    <Link to="/client-central" className="flex items-center text-sm text-muted-foreground hover:text-foreground mb-4">
+                        <ChevronLeft className="h-4 w-4 mr-1" />
+                        Back to Clients List
+                    </Link>
+
+                    <div className="flex items-start justify-between">
+                        <div>
+                            <div className="flex items-center gap-3 mb-2">
+                                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                                    {client.name}
+                                </h2>
+                                {client.status === 'Active' && (
+                                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-medium">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-green-600" />
+                                        Active
+                                    </div>
+                                )}
+                            </div>
+                            <div className="text-xs text-muted-foreground flex items-center gap-4">
+                                <span>Client ID: {client.clientId || '56078'}</span>
+                                <span className="text-slate-300">|</span>
+                                <span>Updated by: {client.updatedBy} {client.lastUpdated}</span>
+                            </div>
+                        </div>
+
+                        <Button variant="outline" className="text-[#3b82f6] border-[#3b82f6] hover:bg-blue-50">
+                            Changelog
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Tabs & Content */}
+                <div className="flex-1 p-6">
+                    <Tabs defaultValue="general" className="h-full flex flex-col">
+                        <div className="bg-white dark:bg-[#1a1f2e] border-b px-6">
+                            <TabsList className="h-auto p-0 bg-transparent space-x-8">
+                                <TabsTrigger
+                                    value="general"
+                                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#3b82f6] data-[state=active]:text-[#3b82f6] px-0 py-3 bg-transparent shadow-none"
+                                >
+                                    General Information
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="brands"
+                                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#3b82f6] data-[state=active]:text-[#3b82f6] px-0 py-3 bg-transparent shadow-none"
+                                >
+                                    Brands/Products
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="briefs"
+                                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#3b82f6] data-[state=active]:text-[#3b82f6] px-0 py-3 bg-transparent shadow-none"
+                                >
+                                    Market Briefs
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="team"
+                                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#3b82f6] data-[state=active]:text-[#3b82f6] px-0 py-3 bg-transparent shadow-none"
+                                >
+                                    Client Team
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="related"
+                                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#3b82f6] data-[state=active]:text-[#3b82f6] px-0 py-3 bg-transparent shadow-none"
+                                >
+                                    Related Clients
+                                </TabsTrigger>
+                            </TabsList>
+                        </div>
+
+                        <div className="mt-6 space-y-6">
+                            <TabsContent value="general" className="space-y-6 m-0">
+                                {/* Client Details Card */}
+                                <div className="bg-white dark:bg-[#1a1f2e] rounded-xl shadow-sm border p-6">
+                                    <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-6">Client Details</h3>
+
+                                    <div className="grid grid-cols-4 gap-8 mb-8">
+                                        <div>
+                                            <div className="text-xs text-muted-foreground mb-1">Also Known As</div>
+                                            <div className="text-sm font-medium">{client.subName || client.name + " Corporation"}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-xs text-muted-foreground mb-1">Industry</div>
+                                            <div className="text-sm font-medium">{client.industries}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-xs text-muted-foreground mb-1">Website</div>
+                                            <a href="#" className="text-sm text-[#3b82f6] hover:underline flex items-center gap-1">
+                                                <ExternalLink className="h-3 w-3" />
+                                                {client.website || "Open link"}
+                                            </a>
+                                        </div>
+                                        <div>
+                                            <div className="text-xs text-muted-foreground mb-1">Hierarchy</div>
+                                            <div className="text-sm font-medium">{client.hierarchy || "--"}</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="mb-8">
+                                        <div className="text-xs text-muted-foreground mb-1">Account Owners</div>
+                                        <div className="text-sm text-[#3b82f6]">{client.accountOwners?.join(", ") || "vincent.spruyt@kinesso.com"}</div>
+                                    </div>
+
+                                    <div>
+                                        <div className="text-xs text-muted-foreground mb-1">Description</div>
+                                        <div className="text-sm text-slate-700 dark:text-slate-300">
+                                            {client.description || "Large company in the Client Business"}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Markets & Agencies Card */}
+                                <div className="bg-white dark:bg-[#1a1f2e] rounded-xl shadow-sm border p-6">
+                                    <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-6">Markets & Agencies</h3>
+
+                                    <div className="mb-8">
+                                        <div className="text-xs text-muted-foreground mb-2">Agency</div>
+                                        <div className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                                            {client.agencyList || "Acxiom, Healix, IPG, IPG Fusion, IPG Health, IPG Mediabrands, Ignite, Initiative, Kinesso, Matterkind, McCann, McCann Healthcare, McCann Worldgroup, Orion, Rapport, Reprise, Rufus, SOLVE(D), Stickyeyes, The Martin Agency, UM"}
+                                        </div>
+                                    </div>
+
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow className="hover:bg-transparent border-none bg-slate-50 dark:bg-slate-800/50">
+                                                <TableHead className="w-[200px]">Region</TableHead>
+                                                <TableHead>Markets</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {client.regionMarkets ? (
+                                                client.regionMarkets.map((rm, idx) => (
+                                                    <TableRow key={idx} className="border-b last:border-0">
+                                                        <TableCell className="font-medium">{rm.region}</TableCell>
+                                                        <TableCell>{rm.markets}</TableCell>
+                                                    </TableRow>
+                                                ))
+                                            ) : (
+                                                <>
+                                                    <TableRow className="border-b">
+                                                        <TableCell className="font-medium">EMEA</TableCell>
+                                                        <TableCell>Germany</TableCell>
+                                                    </TableRow>
+                                                    <TableRow className="border-0">
+                                                        <TableCell className="font-medium">NA</TableCell>
+                                                        <TableCell>Demo Market, United States</TableCell>
+                                                    </TableRow>
+                                                </>
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                            </TabsContent>
+
+                            <TabsContent value="brands" className="m-0">
+                                <Tabs defaultValue="brands-list" className="w-full">
+                                    <div className="bg-white dark:bg-[#1a1f2e] border-b px-6">
+                                        <TabsList className="h-auto p-0 bg-transparent space-x-8">
+                                            <TabsTrigger
+                                                value="brands-list"
+                                                className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#3b82f6] data-[state=active]:text-[#3b82f6] px-0 py-3 bg-transparent shadow-none"
+                                            >
+                                                Brands/Products
+                                            </TabsTrigger>
+                                            <TabsTrigger
+                                                value="lob"
+                                                className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#3b82f6] data-[state=active]:text-[#3b82f6] px-0 py-3 bg-transparent shadow-none"
+                                            >
+                                                Lines of Business
+                                            </TabsTrigger>
+                                        </TabsList>
+                                    </div>
+
+                                    <div className="p-6">
+                                        <TabsContent value="brands-list" className="m-0">
+                                            <div className="bg-white dark:bg-[#1a1f2e] rounded-xl shadow-sm border p-4">
+                                                <div className="flex items-center gap-2 mb-6">
+                                                    <h3 className="text-lg font-semibold">Brands/Products</h3>
+                                                    <span className="text-muted-foreground">{clientsToShow.length}</span>
+                                                </div>
+
+                                                <div className="relative w-64 mb-6">
+                                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                    <Input
+                                                        placeholder="Search"
+                                                        className="pl-9 bg-white"
+                                                        value={searchQuery}
+                                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                                    />
+                                                </div>
+
+                                                <Table>
+                                                    <TableHeader>
+                                                        <TableRow className="hover:bg-transparent border-none">
+                                                            <TableHead className="w-[300px]">Name ▲</TableHead>
+                                                            <TableHead>Markets</TableHead>
+                                                            <TableHead>Lines of Business</TableHead>
+                                                        </TableRow>
+                                                    </TableHeader>
+                                                    <TableBody>
+                                                        {clientsToShow.map((client) => (
+                                                            <TableRow key={client.id} className="group hover:bg-slate-50 dark:hover:bg-slate-800/50 border-b last:border-0">
+                                                                <TableCell className="font-medium text-slate-700 dark:text-slate-300">
+                                                                    {client.name}
+                                                                </TableCell>
+                                                                <TableCell className="text-sm text-slate-600 dark:text-slate-300">
+                                                                    {client.markets}
+                                                                </TableCell>
+                                                                <TableCell className="text-sm text-slate-600 dark:text-slate-300">
+                                                                    {client.name.includes("Demo Brand") ? "Demo LOB" : "—"}
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        ))}
+                                                    </TableBody>
+                                                </Table>
+                                            </div>
+                                        </TabsContent>
+
+                                        <TabsContent value="lob" className="m-0">
+                                            <div className="bg-white dark:bg-[#1a1f2e] rounded-xl shadow-sm border p-4">
+                                                <div className="flex items-center gap-2 mb-6">
+                                                    <h3 className="text-lg font-semibold">Lines of Business</h3>
+                                                    <span className="text-muted-foreground">{linesOfBusiness.length}</span>
+                                                </div>
+
+                                                {linesOfBusiness.map(lob => (
+                                                    <div key={lob.id} className="border rounded-lg mb-4 overflow-hidden">
+                                                        <button
+                                                            onClick={() => toggleLOB(lob.id)}
+                                                            className="w-full flex items-center gap-2 p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 transition-colors text-left"
+                                                        >
+                                                            {expandedLOBs.includes(lob.id) ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                                                            <span className="font-semibold">{lob.name}</span>
+                                                            <span className="text-muted-foreground text-sm">{lob.brands.length}</span>
+                                                        </button>
+
+                                                        {expandedLOBs.includes(lob.id) && (
+                                                            <div className="p-0">
+                                                                <Table>
+                                                                    <TableHeader>
+                                                                        <TableRow className="hover:bg-transparent border-none">
+                                                                            <TableHead>Name ▲</TableHead>
+                                                                            <TableHead>Markets</TableHead>
+                                                                        </TableRow>
+                                                                    </TableHeader>
+                                                                    <TableBody>
+                                                                        {lob.brands.map((brand, idx) => (
+                                                                            <TableRow key={idx} className="border-b last:border-0">
+                                                                                <TableCell className="font-medium">{brand.name}</TableCell>
+                                                                                <TableCell>{brand.markets}</TableCell>
+                                                                            </TableRow>
+                                                                        ))}
+                                                                    </TableBody>
+                                                                </Table>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </TabsContent>
+                                    </div>
+                                </Tabs>
+                            </TabsContent>
+
+                            <TabsContent value="briefs" className="m-0">
+                                <div className="bg-white dark:bg-[#1a1f2e] rounded-xl shadow-sm border p-4">
+                                    <div className="flex items-center gap-2 mb-6">
+                                        <h3 className="text-lg font-semibold">Market Briefs</h3>
+                                        <span className="text-muted-foreground">{marketBriefs.length}</span>
+                                    </div>
+
+                                    <div className="flex flex-wrap items-center gap-4 mb-6">
+                                        <div className="relative w-64">
+                                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                            <Input
+                                                placeholder="Search"
+                                                className="pl-9 bg-white rounded-full"
+                                                value={searchQuery}
+                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                            />
+                                        </div>
+
+                                        <div className="flex bg-slate-100 p-1 rounded-full">
+                                            <button className="px-4 py-1.5 text-sm font-medium bg-white shadow-sm rounded-full text-slate-900">All Market Briefs</button>
+                                            <button className="px-4 py-1.5 text-sm font-medium text-slate-500 hover:text-slate-900">My Market Briefs</button>
+                                        </div>
+
+                                        <div className="flex items-center gap-2 text-sm text-muted-foreground ml-4">
+                                            <Filter className="h-4 w-4" />
+                                            <span>Filters:</span>
+                                        </div>
+
+                                        <Select defaultValue="all">
+                                            <SelectTrigger className="w-[150px] border-none shadow-none hover:bg-slate-50">
+                                                <SelectValue placeholder="Markets" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="all">Markets: All</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+
+                                        <Button
+                                            className="ml-auto bg-[#3b82f6] hover:bg-blue-600 text-white rounded-full gap-2"
+                                            onClick={() => setIsCreateBriefOpen(true)}
+                                        >
+                                            <Plus className="h-4 w-4" />
+                                            Create New Market Brief
+                                        </Button>
+                                    </div>
+
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow className="hover:bg-transparent border-none">
+                                                <TableHead className="w-[400px]">Name ▲</TableHead>
+                                                <TableHead>Market ▼</TableHead>
+                                                <TableHead>Forecasted Budget ▼</TableHead>
+                                                <TableHead>Owner ▼</TableHead>
+                                                <TableHead>Date Range ▼</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {marketBriefs.map((brief) => (
+                                                <TableRow key={brief.id} className="border-b last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                                    <TableCell className="font-medium">
+                                                        <Link
+                                                            to={`/client-central/${clientId}/market-brief/${brief.id}`}
+                                                            state={{ brief }}
+                                                            className="font-medium text-[#3b82f6] hover:underline"
+                                                        >
+                                                            {brief.name}
+                                                        </Link>
+                                                    </TableCell>
+                                                    <TableCell>{brief.market}</TableCell>
+                                                    <TableCell>{brief.forecastedBudget}</TableCell>
+                                                    <TableCell>{brief.owner}</TableCell>
+                                                    <TableCell>{brief.dateRange}</TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                            </TabsContent>
+
+                            <TabsContent value="team" className="m-0">
+                                <Tabs defaultValue="teams" className="w-full">
+                                    <div className="bg-white dark:bg-[#1a1f2e] border-b px-6">
+                                        <TabsList className="h-auto p-0 bg-transparent space-x-8">
+                                            <TabsTrigger
+                                                value="teams"
+                                                className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#3b82f6] data-[state=active]:text-[#3b82f6] px-0 py-3 bg-transparent shadow-none"
+                                            >
+                                                Client Teams
+                                            </TabsTrigger>
+                                            <TabsTrigger
+                                                value="access"
+                                                className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#3b82f6] data-[state=active]:text-[#3b82f6] px-0 py-3 bg-transparent shadow-none"
+                                            >
+                                                Client Access
+                                            </TabsTrigger>
+                                        </TabsList>
+                                    </div>
+
+                                    <div className="p-6">
+                                        <TabsContent value="teams" className="m-0">
+                                            <div className="bg-white dark:bg-[#1a1f2e] rounded-xl shadow-sm border p-4">
+                                                <div className="flex items-center gap-2 mb-6">
+                                                    <h3 className="text-lg font-semibold">Client Teams</h3>
+                                                    <span className="text-muted-foreground">{clientTeams.length}</span>
+                                                </div>
+
+                                                {clientTeams.map(team => (
+                                                    <div key={team.id} className="border rounded-lg mb-4 overflow-hidden">
+                                                        <button
+                                                            onClick={() => toggleTeam(team.id)}
+                                                            className="w-full flex items-center gap-2 p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 transition-colors text-left"
+                                                        >
+                                                            {expandedTeams.includes(team.id) ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                                                            <span className="font-semibold">{team.name}</span>
+                                                            <span className="text-muted-foreground text-sm">{team.members.length}</span>
+                                                        </button>
+
+                                                        {expandedTeams.includes(team.id) && (
+                                                            <div className="p-4">
+                                                                <div className="grid grid-cols-3 gap-8 mb-4 text-sm text-muted-foreground">
+                                                                    <div>Description</div>
+                                                                    <div>Brands/Products</div>
+                                                                    <div>Lines of Business</div>
+                                                                </div>
+                                                                <div className="grid grid-cols-3 gap-8 mb-6 text-sm">
+                                                                    <div>{team.description}</div>
+                                                                    <div>Demo Brand 1, Demo Brand 2</div>
+                                                                    <div>Demo LOB</div>
+                                                                </div>
+
+                                                                <Table>
+                                                                    <TableHeader>
+                                                                        <TableRow className="hover:bg-transparent border-none">
+                                                                            <TableHead>Name ▲</TableHead>
+                                                                            <TableHead>Email ▼</TableHead>
+                                                                        </TableRow>
+                                                                    </TableHeader>
+                                                                    <TableBody>
+                                                                        {team.members.map((member, idx) => (
+                                                                            <TableRow key={idx} className="border-b last:border-0">
+                                                                                <TableCell className="font-medium">{member.name}</TableCell>
+                                                                                <TableCell>{member.email}</TableCell>
+                                                                            </TableRow>
+                                                                        ))}
+                                                                    </TableBody>
+                                                                </Table>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </TabsContent>
+                                        <TabsContent value="access" className="m-0">
+                                            <div className="p-4 text-center text-muted-foreground">No access data available</div>
+                                        </TabsContent>
+                                    </div>
+                                </Tabs>
+                            </TabsContent>
+
+                            <TabsContent value="related" className="m-0">
+                                <div className="bg-white dark:bg-[#1a1f2e] rounded-xl shadow-sm border p-12 flex flex-col items-center justify-center min-h-[300px]">
+                                    <div className="flex items-center gap-2 mb-6 w-full">
+                                        <h3 className="text-lg font-semibold">Related Clients</h3>
+                                        <span className="text-muted-foreground">0</span>
+                                    </div>
+
+                                    <div className="flex flex-col items-center justify-center text-center">
+                                        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                                            <FileText className="h-8 w-8 text-slate-300" />
+                                        </div>
+                                        <h3 className="text-lg font-medium text-slate-400">No relationships</h3>
+                                    </div>
+                                </div>
+                            </TabsContent>
+                        </div>
+                    </Tabs>
+
+                    <Dialog open={isCreateBriefOpen} onOpenChange={setIsCreateBriefOpen}>
+                        <DialogContent className="sm:max-w-[600px]">
+                            <DialogHeader>
+                                <DialogTitle>Create New Market Brief</DialogTitle>
+                            </DialogHeader>
+                            <div className="py-4 space-y-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Brief Description</label>
+                                    <Textarea
+                                        placeholder="Describe your project..."
+                                        className="min-h-[100px] text-base resize-none"
+                                        value={briefDescription}
+                                        onChange={(e) => setBriefDescription(e.target.value)}
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium">Budget</label>
+                                        <Input
+                                            placeholder="$50,000"
+                                            value={briefBudget}
+                                            onChange={(e) => setBriefBudget(e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium">Goal</label>
+                                        <Input
+                                            placeholder="Launch Campaign"
+                                            value={briefGoal}
+                                            onChange={(e) => setBriefGoal(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Client Team</label>
+                                    <Select value={briefTeam} onValueChange={setBriefTeam}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select team" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Brand Team">Brand Team</SelectItem>
+                                            <SelectItem value="Marketing Team">Marketing Team</SelectItem>
+                                            <SelectItem value="Product Team">Product Team</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Workstreams</label>
+                                    <div className="flex gap-4">
+                                        <div className="flex items-center space-x-2">
+                                            <input
+                                                type="checkbox"
+                                                id="creative"
+                                                className="rounded border-gray-300"
+                                                checked={briefWorkstreams.includes("Creative")}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setBriefWorkstreams([...briefWorkstreams, "Creative"]);
+                                                    } else {
+                                                        setBriefWorkstreams(briefWorkstreams.filter(w => w !== "Creative"));
+                                                    }
+                                                }}
+                                            />
+                                            <label htmlFor="creative" className="text-sm">Creative</label>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <input
+                                                type="checkbox"
+                                                id="media"
+                                                className="rounded border-gray-300"
+                                                checked={briefWorkstreams.includes("Media Planning")}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setBriefWorkstreams([...briefWorkstreams, "Media Planning"]);
+                                                    } else {
+                                                        setBriefWorkstreams(briefWorkstreams.filter(w => w !== "Media Planning"));
+                                                    }
+                                                }}
+                                            />
+                                            <label htmlFor="media" className="text-sm">Media Planning</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex items-center justify-end gap-3">
+                                <Button
+                                    className="rounded-full bg-[#3b82f6] hover:bg-blue-600 text-white gap-2"
+                                    onClick={handleGenerateBrief}
+                                    disabled={isGenerating}
+                                >
+                                    {isGenerating ? (
+                                        <>
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                            Generating...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Sparkles className="h-4 w-4" />
+                                            Generate a brief
+                                        </>
+                                    )}
+                                </Button>
+                            </div>
+                        </DialogContent>
+                    </Dialog>
+                </div>
+            </div >
+        </InteractMasterLayout >
+    );
+}

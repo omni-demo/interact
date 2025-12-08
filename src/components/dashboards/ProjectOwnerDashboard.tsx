@@ -17,7 +17,7 @@ export function ProjectOwnerDashboard() {
         <DashboardCard
           title="Mine"
           description="Mine for Audience and Cultural Insights"
-          backgroundImage="/mine.png"
+          backgroundImage="/interact/mine.png"
         >
           <div className="space-y-2">
             <ConsoleButton label="Research Console" />
@@ -29,7 +29,7 @@ export function ProjectOwnerDashboard() {
         <DashboardCard
           title="Make"
           description="Make Marketing Campaigns with Transparent Inventory"
-          backgroundImage="/make.png"
+          backgroundImage="/interact/make.png"
         >
           <div className="space-y-2">
             <ConsoleButton label="Design Console" />
@@ -41,7 +41,7 @@ export function ProjectOwnerDashboard() {
         <DashboardCard
           title="Manage"
           description="Manage, Optimize and Measure Performance of Marketing Campaigns"
-          backgroundImage="/manage.png"
+          backgroundImage="/interact/manage.png"
         >
           <div className="space-y-2">
             <ConsoleButton label="Activation Console" />
@@ -81,7 +81,7 @@ export function ProjectOwnerDashboard() {
                     <span className="font-medium">{campaign.completed}/{campaign.tasks}</span>
                   </div>
                   <div className="w-full bg-secondary rounded-full h-2">
-                    <div 
+                    <div
                       className="bg-primary h-2 rounded-full transition-all"
                       style={{ width: `${(campaign.completed / campaign.tasks) * 100}%` }}
                     />

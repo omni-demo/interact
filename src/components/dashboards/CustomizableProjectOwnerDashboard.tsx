@@ -232,7 +232,7 @@ export function CustomizableProjectOwnerDashboard() {
           <DashboardCard
             title="Mine"
             description="Mine for Audience and Cultural Insights"
-            backgroundImage="/mine.png"
+            backgroundImage="/interact/mine.png"
           >
             <div className="space-y-2">
               <ConsoleButton label="Research Console" href="/research-console/detail" />
@@ -247,7 +247,7 @@ export function CustomizableProjectOwnerDashboard() {
           <DashboardCard
             title="Make"
             description="Make Marketing Campaigns with Transparent Inventory"
-            backgroundImage="/make.png"
+            backgroundImage="/interact/make.png"
           >
             <div className="space-y-2">
               <ConsoleButton label="Workflow Console" href="/workflow-console" />
@@ -261,7 +261,7 @@ export function CustomizableProjectOwnerDashboard() {
           <DashboardCard
             title="Manage"
             description="Manage, Optimize and Measure Performance of Marketing Campaigns"
-            backgroundImage="/manage.png"
+            backgroundImage="/interact/manage.png"
           >
             <div className="space-y-2">
               <ConsoleButton label="Activation Console" />

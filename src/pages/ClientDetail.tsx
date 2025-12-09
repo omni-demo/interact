@@ -17,7 +17,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Download, Search, Filter, ChevronLeft, ExternalLink, Bell, HelpCircle, ChevronDown, FileText, ChevronRight, Plus, Info, Sparkles, Loader2 } from "lucide-react";
+import { Download, Search, Filter, ChevronLeft, ExternalLink, Bell, HelpCircle, ChevronDown, FileText, ChevronRight, Plus, Info, Sparkles, Loader2, Calendar } from "lucide-react";
 import { useParams, Link } from "react-router-dom";
 import { initialClients, Client, MarketBrief } from "@/data/mockData";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -677,107 +677,156 @@ The project is intended for internal company use, primarily benefiting new hires
                     </Tabs>
 
                     <Dialog open={isCreateBriefOpen} onOpenChange={setIsCreateBriefOpen}>
-                        <DialogContent className="sm:max-w-[600px]">
-                            <DialogHeader>
-                                <DialogTitle>Create New Market Brief</DialogTitle>
-                            </DialogHeader>
-                            <div className="py-4 space-y-4">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Brief Description</label>
-                                    <Textarea
-                                        placeholder="Describe your project..."
-                                        className="min-h-[100px] text-base resize-none"
-                                        value={briefDescription}
-                                        onChange={(e) => setBriefDescription(e.target.value)}
-                                    />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium">Budget</label>
-                                        <Input
-                                            placeholder="$50,000"
-                                            value={briefBudget}
-                                            onChange={(e) => setBriefBudget(e.target.value)}
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium">Goal</label>
-                                        <Input
-                                            placeholder="Launch Campaign"
-                                            value={briefGoal}
-                                            onChange={(e) => setBriefGoal(e.target.value)}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Client Team</label>
-                                    <Select value={briefTeam} onValueChange={setBriefTeam}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select team" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Brand Team">Brand Team</SelectItem>
-                                            <SelectItem value="Marketing Team">Marketing Team</SelectItem>
-                                            <SelectItem value="Product Team">Product Team</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Workstreams</label>
-                                    <div className="flex gap-4">
-                                        <div className="flex items-center space-x-2">
-                                            <input
-                                                type="checkbox"
-                                                id="creative"
-                                                className="rounded border-gray-300"
-                                                checked={briefWorkstreams.includes("Creative")}
-                                                onChange={(e) => {
-                                                    if (e.target.checked) {
-                                                        setBriefWorkstreams([...briefWorkstreams, "Creative"]);
-                                                    } else {
-                                                        setBriefWorkstreams(briefWorkstreams.filter(w => w !== "Creative"));
-                                                    }
-                                                }}
-                                            />
-                                            <label htmlFor="creative" className="text-sm">Creative</label>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <input
-                                                type="checkbox"
-                                                id="media"
-                                                className="rounded border-gray-300"
-                                                checked={briefWorkstreams.includes("Media Planning")}
-                                                onChange={(e) => {
-                                                    if (e.target.checked) {
-                                                        setBriefWorkstreams([...briefWorkstreams, "Media Planning"]);
-                                                    } else {
-                                                        setBriefWorkstreams(briefWorkstreams.filter(w => w !== "Media Planning"));
-                                                    }
-                                                }}
-                                            />
-                                            <label htmlFor="media" className="text-sm">Media Planning</label>
-                                        </div>
-                                    </div>
+                        <DialogContent className="sm:max-w-[95vw] bg-[#f5f7fa] dark:bg-[#0f1419] p-0 gap-0 overflow-hidden">
+                            <div className="bg-white dark:bg-[#1a1f2e] border-b px-6 py-4 flex items-center justify-between">
+                                <DialogTitle className="text-xl font-semibold text-[#3b82f6]">New Market Brief</DialogTitle>
+                                <div className="flex gap-3">
+                                    <Button variant="outline" className="rounded-full px-6" onClick={() => setIsCreateBriefOpen(false)}>Cancel</Button>
+                                    <Button
+                                        className="rounded-full bg-[#3b82f6] hover:bg-blue-600 px-6 text-white"
+                                        onClick={handleGenerateBrief}
+                                        disabled={isGenerating}
+                                    >
+                                        {isGenerating ? "Generating..." : "Save"}
+                                    </Button>
                                 </div>
                             </div>
-                            <div className="flex items-center justify-end gap-3">
-                                <Button
-                                    className="rounded-full bg-[#3b82f6] hover:bg-blue-600 text-white gap-2"
-                                    onClick={handleGenerateBrief}
-                                    disabled={isGenerating}
-                                >
-                                    {isGenerating ? (
-                                        <>
-                                            <Loader2 className="h-4 w-4 animate-spin" />
-                                            Generating...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Sparkles className="h-4 w-4" />
-                                            Generate a brief
-                                        </>
-                                    )}
-                                </Button>
+
+                            <div className="p-8">
+                                <div className="bg-white dark:bg-[#1a1f2e] rounded-xl shadow-sm border p-6">
+                                    <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-6">Market Brief Details</h3>
+
+                                    <div className="grid grid-cols-2 gap-x-8 gap-y-6">
+                                        {/* Row 1 */}
+                                        <div className="space-y-2">
+                                            <label className="text-xs text-muted-foreground">Client</label>
+                                            <div className="px-3 py-2 bg-slate-50 dark:bg-slate-800/50 border rounded-md text-sm text-slate-500">
+                                                {client.name}
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs text-muted-foreground">Market *</label>
+                                            <Select defaultValue="us">
+                                                <SelectTrigger className="bg-white">
+                                                    <SelectValue placeholder="Select Markets" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="us">United States</SelectItem>
+                                                    <SelectItem value="em">Germany</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+
+                                        {/* Row 2 */}
+                                        <div className="space-y-2">
+                                            <label className="text-xs text-muted-foreground">Name *</label>
+                                            <Input
+                                                value={briefGoal}
+                                                onChange={(e) => setBriefGoal(e.target.value)}
+                                                className="bg-white"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs text-muted-foreground">Brand/Product</label>
+                                            <Select>
+                                                <SelectTrigger className="bg-white">
+                                                    <SelectValue placeholder="Select Brand/Product" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="bp1">Demo Brand 1</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+
+                                        {/* Row 3 */}
+                                        <div className="space-y-2">
+                                            <label className="text-xs text-muted-foreground">Date Range</label>
+                                            <div className="flex items-center gap-4">
+                                                <div className="relative flex-1">
+                                                    <Input placeholder="dd/mm/yy - dd/mm/yy" className="pl-9 bg-white" />
+                                                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-9 h-5 bg-slate-200 rounded-full relative cursor-pointer">
+                                                        <div className="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow-sm" />
+                                                    </div>
+                                                    <span className="text-sm text-slate-600">Always On</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs text-muted-foreground">Objective</label>
+                                            <Select defaultValue="none">
+                                                <SelectTrigger className="bg-white">
+                                                    <SelectValue placeholder="None" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="none">None</SelectItem>
+                                                    <SelectItem value="launch">Launch</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+
+                                        {/* Row 4 */}
+                                        <div className="space-y-2">
+                                            <label className="text-xs text-muted-foreground">Project URL</label>
+                                            <Input className="bg-white" />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs text-muted-foreground">Forecasted Budget</label>
+                                            <div className="flex gap-2">
+                                                <Select defaultValue="usd">
+                                                    <SelectTrigger className="w-[100px] bg-white">
+                                                        <SelectValue placeholder="USD" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="usd">USD</SelectItem>
+                                                        <SelectItem value="eur">EUR</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <Input
+                                                    value={briefBudget}
+                                                    onChange={(e) => setBriefBudget(e.target.value)}
+                                                    className="flex-1 bg-white"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Row 5 */}
+                                        <div className="space-y-2 col-span-2">
+                                            <label className="text-xs text-muted-foreground">Status *</label>
+                                            <Select defaultValue="draft">
+                                                <SelectTrigger className="bg-white w-1/2">
+                                                    <SelectValue placeholder="Draft" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="draft">Draft</SelectItem>
+                                                    <SelectItem value="active">Active</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+
+                                        {/* Description */}
+                                        <div className="space-y-2 col-span-2">
+                                            <div className="flex justify-between items-center">
+                                                <label className="text-xs text-muted-foreground">Description</label>
+                                                <Button
+                                                    variant="ghost"
+                                                    className="h-auto p-0 text-[#3b82f6] hover:bg-transparent hover:text-blue-700 flex items-center gap-1.5"
+                                                    onClick={handleGenerateBrief}
+                                                >
+                                                    <Sparkles className="h-3.5 w-3.5" />
+                                                    <span className="text-xs font-medium">Generate with AI</span>
+                                                </Button>
+                                            </div>
+                                            <Textarea
+                                                value={briefDescription}
+                                                onChange={(e) => setBriefDescription(e.target.value)}
+                                                className="min-h-[150px] resize-none bg-white p-4"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </DialogContent>
                     </Dialog>

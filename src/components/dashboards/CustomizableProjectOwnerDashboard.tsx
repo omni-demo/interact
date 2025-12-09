@@ -23,7 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, CheckCircle2, LayoutDashboard, ExternalLink, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-type WidgetId = "mine" | "make" | "manage" | "campaigns" | "notifications" | "tasks";
+type WidgetId = "mine" | "make" | "manage" | "notifications" | "tasks";
 
 interface Widget {
   id: WidgetId;
@@ -174,55 +174,12 @@ const CampaignCard = ({ campaign }: { campaign: Campaign }) => {
 };
 
 export function CustomizableProjectOwnerDashboard() {
-  const campaigns: Campaign[] = [
-    {
-      id: "1",
-      name: "Q4 Product Launch",
-      status: "on-track",
-      deadline: "Dec 15, 2025",
-      tasks: 12,
-      completed: 8,
-      metadata: {
-        owner: "Sarah Chen",
-        region: "North America",
-        budget: "$450K",
-        roi: "+245%"
-      }
-    },
-    {
-      id: "2",
-      name: "Holiday Marketing Campaign",
-      status: "planning",
-      deadline: "Nov 20, 2025",
-      tasks: 8,
-      completed: 2,
-      metadata: {
-        owner: "Michael Rodriguez",
-        region: "Global",
-        budget: "$320K"
-      }
-    },
-    {
-      id: "3",
-      name: "Brand Refresh Initiative",
-      status: "at-risk",
-      deadline: "Jan 30, 2026",
-      tasks: 15,
-      completed: 10,
-      metadata: {
-        owner: "Emily Watson",
-        region: "Europe",
-        budget: "$280K",
-        roi: "+180%"
-      }
-    },
-  ];
+
 
   const initialWidgets: Widget[] = [
     { id: "mine" },
     { id: "make" },
     { id: "manage" },
-    { id: "campaigns" },
   ];
 
   const renderWidget = (widgetId: WidgetId) => {
@@ -272,26 +229,7 @@ export function CustomizableProjectOwnerDashboard() {
             </div>
           </DashboardCard>
         );
-      case "campaigns":
-        return (
-          <AiHighlight showBadge>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-primary" />
-                  My Open Projects
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {campaigns.map((campaign) => (
-                    <CampaignCard key={campaign.id} campaign={campaign} />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </AiHighlight>
-        );
+
       default:
         return null;
     }

@@ -27,10 +27,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { NotificationItem } from "@/components/NotificationItem";
 import { DraggableWidget } from "@/components/DraggableWidget";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, BookOpen, GraduationCap, Box } from "lucide-react";
 import { Link } from "react-router-dom";
 
-type SectionId = "notifications-tasks" | "active-campaigns" | "campaign-tracking";
+type SectionId = "notifications-tasks" | "training-resources";
 
 interface Section {
   id: SectionId;
@@ -44,8 +44,8 @@ const Index = () => {
   const { currentRole, setCurrentRole } = useUser();
   const [workfrontConnected, setWorkfrontConnected] = useState(false);
   const [sections, setSections] = useState<Section[]>([
-    { id: "active-campaigns" },
-    { id: "campaign-tracking" },
+    { id: "notifications-tasks" },
+    { id: "training-resources" },
   ]);
 
   useEffect(() => {
@@ -98,45 +98,34 @@ const Index = () => {
         return (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
+              <CardHeader className="pb-3">
                 <CardTitle>Notifications</CardTitle>
-                <Button variant="link" size="sm">See All Notifications</Button>
               </CardHeader>
-              <CardContent className="space-y-2">
-                <NotificationItem
-                  title="Optimized solutions are ready for Scenario 1"
-                  subtitle="Client: Bank Strategy, Gefferbyte, Galvercot"
-                  date="Nov 5, 2025, 8:34 AM"
-                  isNew
-                />
-                <NotificationItem
-                  title="Optimized solutions are ready for Scenario 2"
-                  subtitle="Client: Multi Strategy, Gefferbyte, Galvercot"
-                  date="Nov 5, 2025, 8:31 AM"
-                  isNew
-                />
+              <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                <p className="text-muted-foreground mb-1">You are all caught up!</p>
+                <p className="text-muted-foreground text-sm">There are no new notifications available.</p>
               </CardContent>
             </Card>
 
             <Card>
-              <CardHeader>
+              <CardHeader className="pb-3">
                 <CardTitle>Tasks</CardTitle>
               </CardHeader>
               <CardContent>
                 {!workfrontConnected ? (
                   <div className="flex flex-col items-center justify-center py-8">
                     <p className="text-muted-foreground text-center mb-4">
-                      To access your tasks, connect to your Adobe Workfront
+                      To access your tasks, connect to your Asana
                     </p>
-                    <Button onClick={() => setWorkfrontConnected(true)}>
-                      Connect Adobe Workfront
+                    <Button onClick={() => setWorkfrontConnected(true)} className="bg-blue-600 hover:bg-blue-700">
+                      Connect Asana
                     </Button>
                   </div>
                 ) : (
                   <div className="w-full">
                     <div className="mb-3 flex items-center justify-between">
                       <p className="text-sm text-muted-foreground">
-                        Connected to Adobe Workfront
+                        Connected to Asana
                       </p>
                       <Button
                         variant="outline"
@@ -146,13 +135,9 @@ const Index = () => {
                         Disconnect
                       </Button>
                     </div>
-                    <div className="relative w-full h-[400px] border rounded-lg overflow-hidden">
-                      <iframe
-                        src={WORKFRONT_TASK_URL}
-                        className="w-full h-full"
-                        title="Adobe Workfront Tasks"
-                        allow="fullscreen"
-                      />
+                    {/* Placeholder for Asana View */}
+                    <div className="relative w-full h-[400px] border rounded-lg overflow-hidden bg-white flex items-center justify-center">
+                      <p className="text-gray-400">Asana Tasks View</p>
                     </div>
                   </div>
                 )}
@@ -160,18 +145,44 @@ const Index = () => {
             </Card>
           </div>
         );
-      case "active-campaigns":
+      case "training-resources":
         return (
-          <div className="p-6 border rounded-lg bg-card">
-            <h3 className="font-semibold text-lg mb-2">Active Campaigns (for Campaign Planners)</h3>
-            <p className="text-sm text-muted-foreground">Track and manage your ongoing marketing initiatives</p>
-          </div>
-        );
-      case "campaign-tracking":
-        return (
-          <div className="p-6 border rounded-lg bg-card">
-            <h3 className="font-semibold text-lg mb-2">OR: Campaign Tracking (for Client Client Leads)</h3>
-            <p className="text-sm text-muted-foreground">Monitor campaign performance and client deliverables</p>
+          <div className="space-y-4">
+            <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200">Training and Resource Center</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* User Guides */}
+              <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700 flex items-center justify-between hover:shadow-sm cursor-pointer transition-shadow group">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded">
+                    <BookOpen size={20} />
+                  </div>
+                  <span className="font-semibold text-sm text-slate-700 dark:text-slate-200">User Guides</span>
+                </div>
+                <ArrowRight size={16} className="text-slate-400 group-hover:translate-x-1 transition-transform" />
+              </div>
+
+              {/* Academy */}
+              <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700 flex items-center justify-between hover:shadow-sm cursor-pointer transition-shadow group">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded">
+                    <GraduationCap size={20} />
+                  </div>
+                  <span className="font-semibold text-sm text-slate-700 dark:text-slate-200">Academy</span>
+                </div>
+                <ArrowRight size={16} className="text-slate-400 group-hover:translate-x-1 transition-transform" />
+              </div>
+
+              {/* Product Resources */}
+              <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700 flex items-center justify-between hover:shadow-sm cursor-pointer transition-shadow group">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded">
+                    <Box size={20} />
+                  </div>
+                  <span className="font-semibold text-sm text-slate-700 dark:text-slate-200">Product Resources</span>
+                </div>
+                <ArrowRight size={16} className="text-slate-400 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
           </div>
         );
     }

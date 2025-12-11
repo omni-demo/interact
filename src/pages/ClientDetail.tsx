@@ -20,7 +20,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Download, Search, Filter, ChevronLeft, ExternalLink, Bell, HelpCircle, ChevronDown, FileText, ChevronRight, Plus, Info, Sparkles, Loader2, Calendar } from "lucide-react";
-import { useParams, Link } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { initialClients, Client, MarketBrief } from "@/data/mockData";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -28,6 +28,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 export default function ClientDetail() {
     const { clientId } = useParams();
+    const navigate = useNavigate();
     const client = initialClients.find(c => c.id === clientId);
     const [searchQuery, setSearchQuery] = useState("");
     const [expandedLOBs, setExpandedLOBs] = useState<string[]>(["1"]); // Default expand first
@@ -192,6 +193,9 @@ The project is intended for internal company use, primarily benefiting new hires
             document.cookie = `omnify_create_projects_trigger=${encodeURIComponent(projectTriggerValue)}; path=/; max-age=60`;
 
             console.log("Brief generated and sync trigger set:", newBrief.name);
+
+            // Navigate to the newly created brief
+            navigate(`/client-central/${clientId}/market-brief/${newBrief.id}`, { state: { brief: newBrief } });
 
         }, 2000);
     };

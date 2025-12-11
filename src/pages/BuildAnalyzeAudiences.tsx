@@ -16,7 +16,6 @@ import {
     Plus,
     Search,
     Filter,
-
     Info,
     ChevronDown,
     AlertCircle,
@@ -59,7 +58,7 @@ const FOLDERS = [
     { id: 16, name: "Newcastle UFC", count: 7 }
 ];
 
-const AUDIENCES = [
+const INITIAL_AUDIENCES = [
     {
         id: 1,
         name: "Buyers of hot sauce-dips and hot snacks lookalike",
@@ -289,9 +288,31 @@ const CLIENTS = [
     { name: "Universal Demo Client", type: "" }
 ];
 
+const TAG_OPTIONS = [
+    { value: null, label: "NO TAG", desc: "No workflow stage assigned.", color: "bg-slate-200 border-slate-300", dot: "border-slate-400" },
+    { value: "DRAFT", label: "DRAFT", desc: "Audience is being built.", color: "bg-slate-100 text-slate-600 border-slate-200", dot: "bg-slate-400" },
+    { value: "REVIEW", label: "REVIEW", desc: "Audience is awaiting stakeholder or quality review.", color: "bg-amber-100 text-amber-600 border-amber-200", dot: "bg-amber-500" },
+    { value: "COMPLETE", label: "COMPLETE", desc: "Audience marked ready for use.", color: "bg-green-100 text-green-600 border-green-200", dot: "bg-green-500" },
+    { value: "FINAL", label: "FINAL", desc: "Audience marked as the preferred version to move forward.", color: "bg-blue-100 text-blue-600 border-blue-200", dot: "bg-blue-500" },
+    { value: "APPROVED", label: "APPROVED", desc: "Audience syndicated, locked, and cannot be edited.", color: "bg-purple-100 text-purple-600 border-purple-200", dot: "bg-purple-500" }
+];
+
 const BuildAnalyzeAudiences = () => {
     const [clientOpen, setClientOpen] = useState(false);
     const [selectedClient, setSelectedClient] = useState(CLIENTS[0]);
+    const [audiences, setAudiences] = useState(INITIAL_AUDIENCES);
+
+    const handleTagChange = (id: number, newTag: string | null) => {
+        setAudiences(prev => prev.map(a =>
+            a.id === id ? { ...a, tag: newTag } : a
+        ));
+    };
+
+    const getTagStyle = (tagValue: string) => {
+        const option = TAG_OPTIONS.find(o => o.value === tagValue);
+        return option ? option.color : "bg-slate-100 text-slate-600 border-slate-200";
+    };
+
     return (
         <InteractMasterLayout>
 
@@ -469,7 +490,7 @@ const BuildAnalyzeAudiences = () => {
                 </div>
 
                 {/* Audiences Table */}
-                <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+                <div className="bg-white rounded-lg border border-slate-200 overflow-visible">
                     <Table>
                         <TableHeader className="bg-slate-50">
                             <TableRow>
@@ -488,7 +509,7 @@ const BuildAnalyzeAudiences = () => {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {AUDIENCES.map((audience) => (
+                            {audiences.map((audience) => (
                                 <TableRow key={audience.id} className="group hover:bg-blue-50/50">
                                     <TableCell>
                                         <input type="checkbox" className="rounded border-slate-300" />
@@ -508,14 +529,73 @@ const BuildAnalyzeAudiences = () => {
                                             <span className="text-sm text-slate-700">{audience.status}</span>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="text-slate-500">
-                                        {audience.tag ? (
-                                            <Badge variant="secondary" className="bg-slate-200 text-slate-600 hover:bg-slate-300 rounded-sm font-normal text-[10px] px-1.5 py-0 h-5">
-                                                {audience.tag}
-                                            </Badge>
-                                        ) : (
-                                            "-"
-                                        )}
+                                    <TableCell>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                {audience.tag ? (
+                                                    <Badge
+                                                        variant="secondary"
+                                                        className={cn(
+                                                            "rounded-sm font-semibold text-[10px] px-1.5 py-0 h-5 cursor-pointer border hover:opacity-80 transition-opacity flex items-center gap-1 w-fit",
+                                                            getTagStyle(audience.tag)
+                                                        )}
+                                                    >
+                                                        {audience.tag}
+                                                        <ChevronDown className="h-3 w-3 opacity-50" />
+                                                    </Badge>
+                                                ) : (
+                                                    <button className="flex items-center gap-1 px-1.5 py-0.5 rounded border border-dashed border-slate-300 text-[10px] font-medium text-slate-400 hover:text-slate-600 hover:border-slate-400 transition-all">
+                                                        <Plus className="h-3 w-3" />
+                                                        ADD TAG
+                                                        <ChevronDown className="h-3 w-3 ml-0.5" />
+                                                    </button>
+                                                )}
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-64 p-2" align="start">
+                                                <div className="space-y-1">
+                                                    {TAG_OPTIONS.map((option) => (
+                                                        <div
+                                                            key={option.value || 'null'}
+                                                            className={cn(
+                                                                "flex items-start gap-3 p-2 rounded-md cursor-pointer hover:bg-slate-50 transition-colors",
+                                                                audience.tag === option.value ? "bg-slate-50" : ""
+                                                            )}
+                                                            onClick={() => handleTagChange(audience.id, option.value)}
+                                                        >
+                                                            <div className={cn(
+                                                                "w-4 h-4 rounded-full border flex-shrink-0 mt-0.5 flex items-center justify-center",
+                                                                audience.tag === option.value ? "border-blue-500" : "border-slate-300"
+                                                            )}>
+                                                                {audience.tag === option.value && (
+                                                                    <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                                                                )}
+                                                            </div>
+                                                            <div>
+                                                                <div className="flex items-center gap-2">
+                                                                    {option.label !== "NO TAG" && (
+                                                                        <div className={cn("w-2 h-2 rounded-full", option.dot)} />
+                                                                    )}
+                                                                    <span className={cn(
+                                                                        "text-xs font-bold",
+                                                                        option.label === "NO TAG" ? "text-slate-400 dashed border border-slate-300 px-1 rounded-sm" :
+                                                                            option.value === "DRAFT" ? "text-slate-600" :
+                                                                                option.value === "REVIEW" ? "text-amber-600" :
+                                                                                    option.value === "COMPLETE" ? "text-green-600" :
+                                                                                        option.value === "FINAL" ? "text-blue-600" :
+                                                                                            option.value === "APPROVED" ? "text-purple-600" : "text-slate-700"
+                                                                    )}>
+                                                                        {option.label}
+                                                                    </span>
+                                                                </div>
+                                                                <p className="text-[10px] text-slate-500 leading-tight mt-1">
+                                                                    {option.desc}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </PopoverContent>
+                                        </Popover>
                                     </TableCell>
                                     <TableCell className="text-slate-500 text-sm">
                                         {audience.setName || "-"}

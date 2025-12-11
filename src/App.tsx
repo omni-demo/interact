@@ -25,6 +25,8 @@ import ClientDetail from "./pages/ClientDetail";
 import MarketBriefDetail from "./pages/MarketBriefDetail";
 import BuildAnalyzeAudiences from "./pages/BuildAnalyzeAudiences";
 import AudienceDetail from "./pages/AudienceDetail";
+import DesignConsole from "./pages/DesignConsole";
+import InvestmentConsole from "./pages/InvestmentConsole";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +58,8 @@ const App = () => (
                   <Route path="/client-central" element={<ClientCentral />} />
                   <Route path="/client-central/:clientId" element={<ClientDetail />} />
                   <Route path="/client-central/:clientId/market-brief/:briefId" element={<MarketBriefDetail />} />
+                  <Route path="/design-console" element={<DesignConsole />} />
+                  <Route path="/investment-console" element={<InvestmentConsole />} />
 
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
 

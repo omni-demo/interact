@@ -207,8 +207,8 @@ export function CustomizableProjectOwnerDashboard() {
             backgroundImage="/interact/make.png"
           >
             <div className="space-y-2">
-              <ConsoleButton label="Workflow Console" href="/workflow-console" />
-              <ConsoleButton label="Investment Console" />
+              <ConsoleButton label="Design Console" href="/design-console" />
+              <ConsoleButton label="Investment Console" href="/investment-console" />
               <ConsoleButton label="Production Console" href="/production-console" />
             </div>
           </DashboardCard>
@@ -223,9 +223,7 @@ export function CustomizableProjectOwnerDashboard() {
             <div className="space-y-2">
               <ConsoleButton label="Activation Console" />
               <ConsoleButton label="Content Console" />
-              <ConsoleButton label="Taxonomy Unifier" href="/taxonomy-unifier" />
-
-
+              <ConsoleButton label="Workflow Console" href="/workflow-console" />
             </div>
           </DashboardCard>
         );

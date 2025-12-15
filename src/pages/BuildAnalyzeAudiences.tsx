@@ -292,9 +292,9 @@ const TAG_OPTIONS = [
     { value: null, label: "NO TAG", desc: "No workflow stage assigned.", color: "bg-slate-200 border-slate-300", dot: "border-slate-400" },
     { value: "DRAFT", label: "DRAFT", desc: "Audience is being built.", color: "bg-slate-100 text-slate-600 border-slate-200", dot: "bg-slate-400" },
     { value: "REVIEW", label: "REVIEW", desc: "Audience is awaiting stakeholder or quality review.", color: "bg-amber-100 text-amber-600 border-amber-200", dot: "bg-amber-500" },
-    { value: "COMPLETE", label: "COMPLETE", desc: "Audience marked ready for use.", color: "bg-green-100 text-green-600 border-green-200", dot: "bg-green-500" },
+    { value: "COMPLETE", label: "APPROVED", desc: "Audience marked ready for use.", color: "bg-green-100 text-green-600 border-green-200", dot: "bg-green-500" },
     { value: "FINAL", label: "FINAL", desc: "Audience marked as the preferred version to move forward.", color: "bg-blue-100 text-blue-600 border-blue-200", dot: "bg-blue-500" },
-    { value: "APPROVED", label: "APPROVED", desc: "Audience syndicated, locked, and cannot be edited.", color: "bg-purple-100 text-purple-600 border-purple-200", dot: "bg-purple-500" }
+    { value: "SYNDICATED", label: "SYNDICATED", desc: "Audience syndicated, locked, and cannot be edited.", color: "bg-purple-100 text-purple-600 border-purple-200", dot: "bg-purple-500" }
 ];
 
 const BuildAnalyzeAudiences = () => {

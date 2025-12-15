@@ -1,18 +1,18 @@
 import { InteractMasterLayout } from "@/components/InteractMasterLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import {
     ChevronRight,
     Send,
     FileBox,
     Bell,
     CheckSquare,
-    BookOpen,
-    GraduationCap,
-    HelpCircle
 } from "lucide-react";
 
 const ProductionConsole = () => {
+    const navigate = useNavigate();
+
     return (
         <InteractMasterLayout
             currentUser={{
@@ -42,7 +42,7 @@ const ProductionConsole = () => {
                     </div>
                     <div
                         className="bg-white dark:bg-card p-4 rounded-lg border shadow-sm flex items-center justify-between cursor-pointer hover:border-primary/50 transition-colors group"
-                        onClick={() => window.location.href = "/proof-approval"}
+                        onClick={() => navigate("/proof-approval")}
                     >
                         <div className="flex items-center gap-3">
                             <FileBox className="w-5 h-5 text-slate-600 dark:text-slate-400 group-hover:text-primary" />

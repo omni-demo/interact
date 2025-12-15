@@ -271,7 +271,7 @@ const ProjectModule = () => {
             <div className="max-w-[1400px] mx-auto px-6 py-6 space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-semibold text-foreground">Project Module</h1>
+                        <h1 className="text-2xl font-semibold text-foreground">Manage Projects</h1>
                         <p className="text-sm text-muted-foreground">Manage and oversee all master projects</p>
                     </div>
                     <Button>

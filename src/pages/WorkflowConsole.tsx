@@ -7,13 +7,6 @@ import { MyProjectsTable } from "@/components/MyProjectsTable";
 const WorkflowConsole = () => {
     return (
         <InteractMasterLayout
-            currentUser={{
-                name: "John Miller",
-                role: "project-owner",
-                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
-                tenantId: "bbdo",
-                tenantName: "BBDO (and its network including AMV BBDO, adam&eveDDB)",
-            }}
             activeCampaign={{
                 id: "camp_001",
                 name: "Q4 Product Launch",
@@ -57,7 +50,7 @@ const WorkflowConsole = () => {
                                 <Layout className="h-5 w-5" />
                             </div>
                             <span className="text-sm font-medium text-foreground">
-                                Project Module
+                                Manage Projects
                             </span>
                         </div>
                         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1 text-muted-foreground group-hover:text-primary" />

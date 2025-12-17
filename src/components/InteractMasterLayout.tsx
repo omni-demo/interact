@@ -196,8 +196,8 @@ export function InteractMasterLayout({
         onSave={handleProfileSave}
       />
 
-      {/* AI Navigation Orb */}
-      <AINavigationOrb />
+      {/* AI Navigation Orb Removed */}
+      {/* <AINavigationOrb /> */}
 
       {/* Real-time Connection Indicator */}
       <div className="fixed bottom-4 right-4 z-40">

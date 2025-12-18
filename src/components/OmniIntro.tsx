@@ -22,9 +22,9 @@ type OmniIntroProps = {
 
 export const OmniIntro = ({
   children,
-  durationMs = 3800
+  durationMs = 4000
 }: OmniIntroProps) => {
-  const textRef = useRef<SVGTextElement | null>(null);
+  const svgRef = useRef<SVGSVGElement | null>(null);
   const [playing, setPlaying] = useState(false);
 
   const playIntro = () => {
@@ -34,37 +34,61 @@ export const OmniIntro = ({
   useEffect(() => {
     if (!playing) return;
 
-    const text = textRef.current;
-    if (!text) return;
+    const svg = svgRef.current;
+    if (!svg) return;
 
-    const length = text.getComputedTextLength();
-    const totalLength = length * 1.05;
+    const paths = svg.querySelectorAll<SVGPathElement>("path");
 
-    text.style.strokeDasharray = `${totalLength}`;
-    text.style.strokeDashoffset = `${totalLength}`;
+    // Setup initial state for animation
+    paths.forEach(path => {
+      const length = path.getTotalLength();
+      // Make line slightly longer to ensure full coverage
+      const totalLength = length + 1;
 
-    const animation = text.animate(
-      [
-        { strokeDashoffset: totalLength },
-        { strokeDashoffset: 0 }
-      ],
-      {
-        duration: 3000,
-        easing: "ease-out",
-        fill: "forwards"
-      }
-    );
+      path.style.strokeDasharray = `${totalLength}`;
+      path.style.strokeDashoffset = `${totalLength}`;
+      path.style.fillOpacity = "0";
+      path.style.strokeWidth = "2";
+    });
 
-    animation.onfinish = () => {
-      text.classList.add("omni-filled");
-    };
+    // Animate drawing
+    const animations = Array.from(paths).map((path, index) => {
+      const length = path.getTotalLength() + 1;
+
+      const anim = path.animate(
+        [
+          { strokeDashoffset: length },
+          { strokeDashoffset: 0 }
+        ],
+        {
+          duration: 2500,
+          easing: "ease-out",
+          fill: "forwards",
+          // Stagger slightly if desired, or run all at once
+          delay: index * 100
+        }
+      );
+
+      return anim;
+    });
+
+    // Animate fill after drawing
+    const fillTimer = window.setTimeout(() => {
+      paths.forEach(path => {
+        path.style.transition = "fill-opacity 1s ease-in";
+        path.style.fillOpacity = "1";
+        // Optional: fade out stroke
+        path.style.strokeWidth = "0";
+      });
+    }, 2500);
 
     const timer = window.setTimeout(() => {
       setPlaying(false);
     }, durationMs);
 
     return () => {
-      animation.cancel();
+      animations.forEach(a => a.cancel());
+      window.clearTimeout(fillTimer);
       window.clearTimeout(timer);
     };
   }, [playing, durationMs]);
@@ -72,25 +96,23 @@ export const OmniIntro = ({
   return (
     <OmniIntroContext.Provider value={{ playIntro }}>
       {playing && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-100">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-100 dark:bg-[#0f1419]">
           <svg
-            version="1.1"
+            ref={svgRef}
+            width="800"
+            height="262"
+            viewBox="0 0 1295 424"
+            fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 800 400"
-            className="w-full max-w-4xl h-auto"
-            preserveAspectRatio="xMidYMid meet"
+            className="w-full max-w-3xl h-auto text-black dark:text-white"
           >
-            <text
-              id="svgOMNI"
-              ref={textRef}
-              x="50%"
-              y="50%"
-              textAnchor="middle"
-              dominantBaseline="middle"
-              className="omni-text"
-            >
-              OMNI
-            </text>
+            <g>
+              <path d="M906.98 103.469H851.16V321.019H906.98V103.469Z" fill="currentColor" stroke="currentColor" />
+              <path d="M815.85 103.469V321.009H747.58L679.6 197.929H677.86V321.009H622.04V103.469H681.65L758.2 236.079H760.03V103.469H815.85Z" fill="currentColor" stroke="currentColor" />
+              <path d="M521.7 103.469L469.02 198.849H465.51L412.87 103.519L412.84 103.469H348.84V321.009H404.67V189.989H406.42L463.67 293.659H470.63L527.89 189.989H529.64V321.009H585.46V103.469H521.7Z" fill="currentColor" stroke="currentColor" />
+              <path d="M320.69 183.178C318.12 173.588 314.32 164.498 309.47 156.098C304.54 147.588 298.53 139.768 291.62 132.858C284.71 125.948 276.9 119.938 268.38 115.008C259.98 110.148 250.9 106.348 241.31 103.788C232.04 101.318 222.3 99.9883 212.25 99.9883C202.2 99.9883 192.46 101.308 183.19 103.788C173.6 106.358 164.52 110.148 156.12 115.008C147.6 119.928 139.79 125.948 132.88 132.858C125.97 139.768 119.95 147.578 115.03 156.098C110.17 164.498 106.37 173.578 103.81 183.168C101.33 192.438 100.01 202.178 100.01 212.228C100.01 222.278 101.33 232.018 103.81 241.278C106.37 250.868 110.17 259.958 115.03 268.358C119.95 276.878 125.97 284.688 132.88 291.598C139.79 298.508 147.6 304.528 156.12 309.448C164.52 314.308 173.6 318.108 183.19 320.668C192.45 323.148 202.2 324.468 212.24 324.468C222.28 324.468 232.03 323.148 241.3 320.668C250.89 318.108 259.97 314.308 268.37 309.448C276.89 304.528 284.7 298.508 291.61 291.598C298.52 284.688 304.53 276.878 309.46 268.368C314.32 259.968 318.12 250.878 320.68 241.288C323.16 232.028 324.48 222.278 324.48 212.238C324.48 202.198 323.16 192.448 320.68 183.178H320.69ZM266.74 226.838C265.46 231.658 263.55 236.238 261.1 240.448C258.62 244.728 255.6 248.648 252.13 252.128C248.66 255.608 244.73 258.618 240.45 261.098C236.23 263.538 231.67 265.448 226.84 266.738C222.19 267.988 217.29 268.648 212.24 268.648C207.19 268.648 202.3 267.988 197.64 266.738C192.82 265.448 188.25 263.548 184.03 261.098C179.75 258.628 175.82 255.598 172.35 252.128C168.88 248.658 165.86 244.728 163.38 240.448C160.94 236.228 159.03 231.658 157.74 226.838C156.49 222.188 155.83 217.288 155.83 212.238C155.83 207.188 156.49 202.288 157.74 197.638C159.03 192.818 160.94 188.248 163.38 184.028C165.86 179.748 168.88 175.828 172.35 172.348C175.82 168.878 179.75 165.848 184.03 163.378C188.25 160.928 192.81 159.018 197.64 157.738C202.29 156.488 207.19 155.818 212.24 155.818C217.29 155.818 222.19 156.478 226.84 157.738C231.66 159.018 236.23 160.938 240.45 163.378C244.73 165.858 248.65 168.878 252.13 172.348C255.6 175.818 258.62 179.748 261.1 184.028C263.54 188.248 265.46 192.808 266.74 197.638C267.99 202.288 268.66 207.188 268.66 212.238C268.66 217.288 268 222.178 266.74 226.838Z" fill="currentColor" stroke="currentColor" />
+              <path d="M1082.99 100.238C1082.99 100.238 1089.17 157.918 1113.24 181.988C1137.31 206.059 1194.99 212.238 1194.99 212.238C1194.99 212.238 1137.31 218.418 1113.24 242.488C1089.17 266.559 1082.99 324.238 1082.99 324.238C1082.99 324.238 1076.81 266.559 1052.74 242.488C1028.67 218.418 970.99 212.238 970.99 212.238C970.99 212.238 1028.67 206.059 1052.74 181.988C1076.81 157.918 1082.99 100.238 1082.99 100.238Z" fill="currentColor" stroke="currentColor" />
+            </g>
           </svg>
         </div>
       )}

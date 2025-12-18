@@ -87,8 +87,7 @@ export function InteractMasterLayout({
 
           {/* Logo */}
           <button onClick={handleHomeClick} className="flex items-center gap-1 hover:opacity-80 transition-opacity mx-2">
-            <span className="text-[18px] font-bold text-[#1e40af] dark:text-blue-400 tracking-tight">Omni</span>
-            <Sparkles className="h-5 w-5 text-[#1e40af] dark:text-blue-400 fill-current" />
+            <img src={`${import.meta.env.BASE_URL}OmniLogoBlack.svg`} alt="Omni" className="h-6 w-auto" />
           </button>
 
           {/* Context Bar - Shows current campaign/project */}

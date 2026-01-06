@@ -171,7 +171,7 @@ const Index = () => {
             <div>
               {currentRole !== "task-owner" && (
                 <>
-                  <h1 className="text-2xl font-semibold text-foreground mb-0.5">Welcome to Interact</h1>
+                  <h1 className="text-2xl font-semibold text-foreground mb-0.5">Welcome to Omni</h1>
                   <p className="text-sm text-muted-foreground">Manage your workflow and campaigns efficiently</p>
                 </>
               )}

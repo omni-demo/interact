@@ -68,24 +68,8 @@ const projects = [
         dueOn: "4/12/27",
         lastUpdate: "We haven't gotten to really c"
     },
-    {
-        id: 6,
-        name: "CVS Group PLC | Marketing | CVS | AEM Sites E",
-        owner: { name: "Unknown", image: "" },
-        status: "Active",
-        statusColor: "bg-green-500",
-        dueOn: "1/30/26",
-        lastUpdate: "Total of 800 hours + 210 req"
-    },
-    {
-        id: 7,
-        name: "CVS Group PLC | Marketing | CVS | UX & UI Enl",
-        owner: { name: "Unknown", image: "" },
-        status: "Complete",
-        statusColor: "bg-green-500",
-        dueOn: "3/1/25",
-        lastUpdate: "@Karen Hughes I just did thi"
-    },
+
+
     {
         id: 8,
         name: "2025 AEM Team Goals, Meetings, Non-Bill Wo",
@@ -95,15 +79,7 @@ const projects = [
         dueOn: "1/31/26",
         lastUpdate: "Kathy Haven confirmed 10/2"
     },
-    {
-        id: 9,
-        name: "CVS Group PLC | Marketing | CVS Group | Mar",
-        owner: { name: "Unknown", image: "" },
-        status: "Active",
-        statusColor: "bg-green-500",
-        dueOn: "12/31/25",
-        lastUpdate: "@Emma Kovacs @Bev Collir"
-    }
+
 ];
 
 export function MyProjectsTable() {

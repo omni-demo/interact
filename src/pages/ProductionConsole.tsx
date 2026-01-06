@@ -9,20 +9,13 @@ import {
     Bell,
     CheckSquare,
 } from "lucide-react";
+import { MyProjectsTable } from "@/components/MyProjectsTable";
 
 const ProductionConsole = () => {
     const navigate = useNavigate();
 
     return (
-        <InteractMasterLayout
-            currentUser={{
-                name: "John Miller",
-                role: "project-owner",
-                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
-                tenantId: "bbdo",
-                tenantName: "BBDO (and its network including AMV BBDO, adam&eveDDB)",
-            }}
-        >
+        <InteractMasterLayout>
             <div className="max-w-[1400px] mx-auto px-6 py-6 space-y-8">
                 {/* Breadcrumb */}
                 <div className="flex items-center text-sm text-muted-foreground">
@@ -70,21 +63,9 @@ const ProductionConsole = () => {
                     </Card>
 
                     {/* Tasks */}
-                    <Card className="h-[400px] flex flex-col">
-                        <CardHeader>
-                            <CardTitle className="text-lg font-semibold">Tasks</CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex-1 flex flex-col items-center justify-center text-center p-6">
-                            <div className="mb-4 text-muted-foreground/30">
-                                {/* Placeholder for illustration */}
-                                <CheckSquare className="w-16 h-16 opacity-20" />
-                            </div>
-                            <p className="text-muted-foreground mb-4">To access your tasks, connect to your Asana</p>
-                            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                                Connect Asana
-                            </Button>
-                        </CardContent>
-                    </Card>
+                    <div className="h-[400px]">
+                        <MyProjectsTable />
+                    </div>
                 </div>
 
                 {/* Training and Resource Center */}
